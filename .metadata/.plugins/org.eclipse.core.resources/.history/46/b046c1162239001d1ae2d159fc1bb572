@@ -1,0 +1,5 @@
+package com.ropvatika.admin.security;
+
+public class RopvatikaUserDetails {
+
+}

@@ -1,0 +1,52 @@
+package com.ropvatika.admin.admin.category;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
+
+import com.ropvatika.admin.category.CategoryRepository;
+import com.ropvatika.common.entity.Category;
+
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+@Rollback(false)
+public class CategoryRepositoryTests {
+	
+	@Autowired
+	private CategoryRepository repo;
+
+	@Test
+	public void testCreateRootCategory() {
+		Category category = new Category("Seeds");
+		Category savedCategory = repo.save(category);
+	
+		assertThat(savedCategory.getId()).isGreaterThan(0);
+	}
+	
+	@Test
+	public void testCreateSubCategory()
+	{
+		Category parent = new Category(1);
+		Category bgplants = new Category("Beginner Friendly Plants", parent);
+		Category fPlants = new Category("Flowering Plants", parent);
+		Category cac_suc = new Category("Cacti And Succulents", parent);
+		Category lowlight = new Category("Lowlight", parent);
+		Category airpurifying = new Category("Air Purifying", parent);
+		Category med_armo = new Category("Medicinal & Aromatic Plants", parent);
+		
+		repo.saveAll(List.of(bgplants, fPlants ,cac_suc, lowlight,airpurifying,med_armo ));
+	
+		
+	}
+	
+	
+	
+	
+}

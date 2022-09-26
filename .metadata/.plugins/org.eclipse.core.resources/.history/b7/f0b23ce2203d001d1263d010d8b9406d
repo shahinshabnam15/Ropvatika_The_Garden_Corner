@@ -1,0 +1,321 @@
+package com.ropvatika.admin.admin.category;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.test.annotation.Rollback;
+
+import com.ropvatika.admin.category.CategoryNotFoundException;
+import com.ropvatika.admin.category.CategoryRepository;
+import com.ropvatika.common.entity.Category;
+
+@DataJpaTest(showSql = false)
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+@Rollback(false)
+public class CategoryRepositoryTests {
+	
+	@Autowired
+	private CategoryRepository repo;
+
+	@Test
+	public void testCreateRootCategory() {
+		Category category = new Category("Seeds");
+		Category savedCategory = repo.save(category);
+	
+		assertThat(savedCategory.getId()).isGreaterThan(0);
+	}
+	
+	@Test
+	public void testCreateSubCategory()
+	{
+		Category parent = new Category(10);
+		Category subCategory = new Category("Dahlia Seeds",parent);
+		Category savedCategory = repo.save(subCategory);
+		
+		assertThat(savedCategory.getId()).isGreaterThan(0);
+		
+		
+		
+	}
+	
+	@Test
+	public void testGetCategory()
+	{
+		Category category = repo.findById(2).get();
+		System.out.println(category.getName());
+		
+		Set<Category> children = category.getChildren();
+		
+		for(Category subCategory : children)
+		{
+			System.out.println(subCategory.getName());
+		}
+		
+		assertThat(children.size()).isGreaterThan(0);
+	}
+	
+	
+	@Test
+	public void testPrintHierarchicalCategories()
+	{
+		Iterable<Category> categories = repo.findAll();
+		
+		for(Category category : categories)
+		{
+			if(category.getParent() == null)
+			{
+				System.out.println(category.getName());
+				
+				Set<Category> children = category.getChildren();
+				
+				for(Category subCategory : children)
+				{
+					System.out.println("--" + subCategory.getName());
+					printChildren(subCategory,1);
+				}
+			}
+		}
+	}
+	
+	
+	
+	private void printChildren(Category parent, int subLevel)
+	{
+		int newSubLevel = subLevel + 1;
+		
+		Set<Category> children =  parent.getChildren();
+	
+		for(Category subCategory : children){
+			
+		for(int i = 0; i < newSubLevel; i++) {
+		
+			System.out.print("--");
+		}
+		System.out.println(subCategory.getName());
+			printChildren( subCategory, newSubLevel );
+		}
+}
+	@Test
+	public void testListRootCategories() {
+		List<Category> rootCategories = repo.findRootCategories(Sort.by("Name")/*package com.shopme.admin.category;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import com.shopme.common.entity.Category;*/
+
+@Service
+public class CategoryService {
+	@Autowired
+	private CategoryRepository repo;
+	
+	public List<Category> listAll(String sortDir) {
+		Sort sort = Sort.by("name");
+		
+		if (sortDir.equals("asc")) {
+			sort = sort.ascending();
+		} else if (sortDir.equals("desc")) {
+			sort = sort.descending();
+		}
+		
+		List<Category> rootCategories = repo.findRootCategories(sort);
+		
+		return listHierarchicalCategories(rootCategories, sortDir);
+	}
+	
+	private List<Category> listHierarchicalCategories(List<Category> rootCategories, String sortDir) {
+		List<Category> hierarchicalCategories = new ArrayList<>();
+		
+		for (Category rootCategory : rootCategories) {
+			hierarchicalCategories.add(Category.copyFull(rootCategory));
+			
+			Set<Category> children = sortSubCategories(rootCategory.getChildren(), sortDir);
+			
+			for (Category subCategory : children) {
+				String name = "--" + subCategory.getName();
+				hierarchicalCategories.add(Category.copyFull(subCategory, name));
+				
+				listSubHierarchicalCategories(hierarchicalCategories, subCategory, 1, sortDir);
+			}
+		}
+		
+		return hierarchicalCategories;
+	}
+	
+	private void listSubHierarchicalCategories(List<Category> hierarchicalCategories,
+			Category parent, int subLevel, String sortDir) {
+		Set<Category> children = sortSubCategories(parent.getChildren(), sortDir);
+		int newSubLevel = subLevel + 1;
+		
+		for (Category subCategory : children) {
+			String name = "";
+			for (int i = 0; i < newSubLevel; i++) {				
+				name += "--";
+			}
+			name += subCategory.getName();
+		
+			hierarchicalCategories.add(Category.copyFull(subCategory, name));
+			
+			listSubHierarchicalCategories(hierarchicalCategories, subCategory, newSubLevel, sortDir);
+		}
+		
+	}
+	
+	public Category save(Category category) {
+		return repo.save(category);
+	}
+	
+	public List<Category> listCategoriesUsedInForm() {
+		List<Category> categoriesUsedInForm = new ArrayList<>();
+		
+		Iterable<Category> categoriesInDB = repo.findRootCategories(Sort.by("name").ascending());
+		
+		for (Category rootcategory : categoriesInDB) {
+			categoriesUsedInForm.add(Category.copyIdAndName(category));
+			
+			Set<Category> children = rootCategory.getChildren();
+			
+			for (Category subCategory : children) {
+				String name = "--" + subCategory.getName();
+				categoriesUsedInForm.add(Category.copyIdAndName(subCategory.getId(), name));
+				
+				listSubCategoriesUsedInForm(categoriesUsedInForm, subCategory, 1);
+			}
+		}		
+		
+		return categoriesUsedInForm;
+	}
+	
+	private void listSubCategoriesUsedInForm(List<Category> categoriesUsedInForm, 
+			Category parent, int subLevel) {
+		int newSubLevel = subLevel + 1;
+		Set<Category> children = parent.getChildren();
+		
+		for (Category subCategory : children) {
+			String name = "";
+			for (int i = 0; i < newSubLevel; i++) {				
+				name += "--";
+			}
+			name += subCategory.getName();
+			
+			categoriesUsedInForm.add(Category.copyIdAndName(subCategory.getId(), name));
+			
+			listSubCategoriesUsedInForm(categoriesUsedInForm, subCategory, newSubLevel);
+		}		
+	}	
+	
+	public Category get(Integer id) throws CategoryNotFoundException {
+		try {
+			return repo.findById(id).get();
+		} catch (NoSuchElementException ex) {
+			throw new CategoryNotFoundException("Could not find any category with ID " + id);
+		}
+	}
+	
+	public String checkUnique(Integer id, String name, String alias) {
+		boolean isCreatingNew = (id == null || id == 0);
+		
+		Category categoryByName = repo.findByName(name);
+		
+		if (isCreatingNew) {
+			if (categoryByName != null) {
+				return "DuplicateName";
+			} else {
+				Category categoryByAlias = repo.findByAlias(alias);
+				if (categoryByAlias != null) {
+					return "DuplicateAlias";	
+				}
+			}
+		} else {
+			if (categoryByName != null && categoryByName.getId() != id) {
+				return "DuplicateName";
+			}
+			
+			Category categoryByAlias = repo.findByAlias(alias);
+			if (categoryByAlias != null && categoryByAlias.getId() != id) {
+				return "DuplicateAlias";
+			}
+			
+		}
+		
+		return "OK";
+	}
+	
+	/*private SortedSet<Category> sortSubCategories(Set<Category> children) {
+		return sortSubCategories(children, "asc");
+	}
+	
+	private SortedSet<Category> sortSubCategories(Set<Category> children, String sortDir) {
+		SortedSet<Category> sortedChildren = new TreeSet<>(new Comparator<Category>() {
+			@Override
+			public int compare(Category cat1, Category cat2) {
+				if (sortDir.equals("asc")) {
+					return cat1.getName().compareTo(cat2.getName());
+				} else {
+					return cat2.getName().compareTo(cat1.getName());
+				}
+			}
+		});
+		
+		sortedChildren.addAll(children);
+		
+		return sortedChildren;
+	
+}
+
+		rootCategories.forEach(cat -> System.out.println(cat.getName()));
+	}
+	*/
+	@Test
+	public void testFindByName() {
+		String name = "Plants";
+		Category category = repo.findByName(name);
+		assertThat(category).isNotNull();
+		assertThat(category.getName()).isEqualTo(name);
+		
+	}
+	@Test
+	public void testFindByAlias() {
+		String alias = "Plants";
+		Category category = repo.findByAlias(alias);
+		assertThat(category).isNotNull();
+		assertThat(category.getAlias()).isEqualTo(alias);
+	}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

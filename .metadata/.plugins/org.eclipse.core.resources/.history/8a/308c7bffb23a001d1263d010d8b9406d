@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="ISO-8859-1">
+</head>
+<body>
+<th>
+<th th:fragment="column_link(fieldName, columnlabel)">
+<a class="text-white"
+ th:href="@{'/users/page/' + ${currentPage} + '?sortField=id&sortDir=' +  ${keyword != null ? '&keyword=' + keyword  : ''}}">
+User Id
+</a>
+
+
+<span th:if="${sortField == fieldName}"
+ th:class="${SortDir == 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'}"></span>
+
+</th>
+
+</body>
+</html>
+
+
+
+
+

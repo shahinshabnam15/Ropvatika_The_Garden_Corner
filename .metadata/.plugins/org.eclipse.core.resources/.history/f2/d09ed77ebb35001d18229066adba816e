@@ -1,0 +1,13 @@
+package com.ropvatika;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RopvatikaWebParentApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RopvatikaWebParentApplication.class, args);
+	}
+
+}

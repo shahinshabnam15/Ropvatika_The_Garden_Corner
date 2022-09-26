@@ -1,0 +1,5 @@
+package com.ropvatika.common.entity;
+
+public class User {
+
+}

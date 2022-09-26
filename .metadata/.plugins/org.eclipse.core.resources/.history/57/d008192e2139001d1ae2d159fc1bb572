@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0">
+<title>Login - Ropvatika Admin</title>
+<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+</head>
+<body>
+<div class="container-fluid text-center">
+
+<div>
+<img  width=250px hieght=250px th:src="@{/images/logo.jpeg }"/>
+</div>
+<form th:action="@{/login}" method="post" style="max-width: 350px; margin:0 auto">
+<div class="border border-secondary rounded">
+<p>Access to RopVatika Control Panel</p>
+<p>
+<input type="email" name="email" class="form-control" placeholder="E-mail"required/>
+</p>
+</div>
+
+</form >
+<div>
+<p>RopVatika Control Panel - Copyright &copy; RopVatika</p>
+</div>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="CategoryServiceTests.testCheckUniqueInNewModeReturnDuplicateName" project="RopvatikaBackEnd" tests="1" started="1" failures="0" errors="0" ignored="0">
+  <testsuite name="com.ropvatika.admin.admin.category.CategoryServiceTests" time="0.268" displayname="CategoryServiceTests" uniqueid="[engine:junit-jupiter]/[class:com.ropvatika.admin.admin.category.CategoryServiceTests]">
+    <testcase name="testCheckUniqueInNewModeReturnDuplicateName" classname="com.ropvatika.admin.admin.category.CategoryServiceTests" time="0.268" displayname="testCheckUniqueInNewModeReturnDuplicateName()" uniqueid="[engine:junit-jupiter]/[class:com.ropvatika.admin.admin.category.CategoryServiceTests]/[method:testCheckUniqueInNewModeReturnDuplicateName()]"/>
+  </testsuite>
+</testrun>

@@ -1,0 +1,15 @@
+package com.ropvatika.admin.user;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import com.ropvatika.common.entity.User;
+
+public class UserCSVExporter {
+	public void export(List<User> listUsers, HttpServletResponse response) {
+		
+	}
+}
+
+

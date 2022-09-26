@@ -1,0 +1,5 @@
+package com.ropvatika.admin.user;
+
+public class UserController {
+
+}
